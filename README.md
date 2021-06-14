@@ -1,0 +1,2 @@
+# MavenPublishScript
+gradle发布组件到MavenCentral脚本
