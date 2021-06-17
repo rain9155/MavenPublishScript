@@ -14,6 +14,8 @@ if (localPropsFile.exists()) {
     return
 }
 
+println "GAV = $GROUPID:$ARTIFACTID:$VERSION"
+
 task sourcesJar(type: Jar) {
     archiveClassifier = 'sources'
     from android.sourceSets.main.java.source
