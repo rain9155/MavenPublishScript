@@ -1,6 +1,6 @@
 # MavenPublishScript
-## gradle发布组件到MavenCentral脚本
-### 使用方法
+### gradle发布组件到MavenCentral脚本
+## 使用方法
 首先在你的组件的build.gradle中apply该脚本：
 ```groovy
 apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/publication.gradle'
