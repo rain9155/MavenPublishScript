@@ -33,8 +33,9 @@ signing.password=你的私钥密码
 signing.secretKeyRingFile=你的私钥文件路径
 
 #ossrh账号信息
-OSSRHUSERNAME=你的ossrh账号名
-OSSRHPASSWORD=你的ossrh账号密码
+ossrh.username=你的ossrh账号名
+ossrh.password=你的ossrh账号密码
+
 ```
 最后在命令行执行gradle任务发布组件：
 ```bash
