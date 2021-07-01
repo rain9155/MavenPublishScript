@@ -1,0 +1,13 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    api 'org.apache.httpcomponents:httpclient:4.5.7'
+    implementation 'org.apache.commons:commons-lang3:3.5'
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+apply from: "${rootProject.rootDir.path}/script/publication.gradle"
