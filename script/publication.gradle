@@ -159,6 +159,12 @@ if(isCheckPass){
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'UTF-8')
+        options.addStringOption('charSet', 'UTF-8')
+    }
+
     publishing.repositories{
         maven {
             def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
@@ -202,6 +208,7 @@ if(isCheckPass){
                         failOnError false
                         source srcDirs
                         classpath += files(android.getBootClasspath().join(File.pathSeparator))
+                        classpath += configurations.compile
                     }
                     def javadocJarTask = tasks.create("${flavorName}${isEmpty(flavorName) ? 'j' : 'J'}avadocJar", Jar){
                         archiveClassifier = 'javadoc'
@@ -236,6 +243,12 @@ if(isCheckPass){
                             connection = "scm:${loadProperty('SCMCONNECTION')}"
                             developerConnection = "scm:${loadProperty('SCMDEVELOPERCONNECTION')}"
                         }
+                        //pom文件的字符编码
+                        properties = [
+                            'project.build.sourceEncoding':'UTF-8',
+                            'project.reporting.outputEncoding':'UTF-8',
+                            'maven.compiler.encoding':'UTF-8'
+                        ]
                         //生成组件的依赖关系
                         withXml {
                             def dependenciesNode = asNode().appendNode('dependencies')

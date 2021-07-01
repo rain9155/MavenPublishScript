@@ -1,6 +1,7 @@
 package com.example.javalib;
 
 /**
+ * log工具类
  * @author chenjianyu
  */
 public class Logger {
