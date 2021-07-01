@@ -3,7 +3,7 @@
 ## 使用方法
 首先在你的组件的build.gradle中apply该脚本：
 ```groovy
-apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/publication.gradle'
+apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/script/publication.gradle'
 ```
 然后在gradle.properties中添加组件信息，其中GAV坐标是必填信息，其他是可选信息：
 ```groovy
