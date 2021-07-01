@@ -1,5 +1,5 @@
 # MavenPublishScript
-### gradle发布组件到MavenCentral脚本
+### gradle发布组件到MavenCentral脚本，支持aar和jar发布
 ## 使用方法
 首先在你的组件的build.gradle中apply该脚本：
 ```groovy
@@ -37,11 +37,17 @@ ossrh.username=你的ossrh账号名
 ossrh.password=你的ossrh账号密码
 
 ```
-最后在命令行执行gradle任务发布组件：
+最后在命令行执行gradle任务发布组件，如果你的是android工程，执行的任务的名称格式为`publish{flavorName}LibraryPublicationToMavenRepository`或`publish{flavorName}LibraryPublicationToMavenLocal`，发布的是aar组件，其中flavorName为android项目的flavor，没有则不填，如果你的是java工程，执行的任务名称为`publishJarPublicationToMavenRepository`或`publishJarPublicationToMavenLocal`，发布的是jar组件，如：
 ```bash
-//发布到maven本地仓库
-gradle publishToMavenLocal
+//发布aar到maven本地仓库
+gradle publishLibraryPublicationToMavenLocal
 
-//发布到maven远程release或snapshot仓库地址
+//发布aar到maven远程release或snapshot仓库地址
 gradle publishLibraryPublicationToMavenRepository
+
+//发布jar到maven本地仓库
+gradle publishJarPublicationToMavenLocal
+
+//发布jar到maven远程release或snapshot仓库地址
+gradle publishJarPublicationToMavenRepository
 ```
