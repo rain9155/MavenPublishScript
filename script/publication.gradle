@@ -353,6 +353,11 @@ if(isCheckPass){
                         connection = "scm:${loadProperty('SCMCONNECTION')}"
                         developerConnection = "scm:${loadProperty('SCMDEVELOPERCONNECTION')}"
                     }
+                    properties = [
+                            'project.build.sourceEncoding':'UTF-8',
+                            'project.reporting.outputEncoding':'UTF-8',
+                            'maven.compiler.encoding':'UTF-8'
+                    ]
                 }
             }
         }
