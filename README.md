@@ -47,10 +47,10 @@ gradle publishLibraryPublicationToMavenLocal
 gradle publishLibraryPublicationToMavenRepository
 
 //假设android组件含有flavorName为china，发布china版本的aar到maven本地仓库
-gradle publishLibraryPublicationToMavenLocal
+gradle publishChinaLibraryPublicationToMavenLocal
 
 //假设android组件含有flavorName为oversea， 发布oversea版本的aar到maven远程release或snapshot仓库地址
-gradle publishLibraryPublicationToMavenRepository
+gradle publishOverseaLibraryPublicationToMavenRepository
 
 //发布jar到maven本地仓库
 gradle publishJarPublicationToMavenLocal
