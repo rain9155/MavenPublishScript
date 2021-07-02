@@ -189,7 +189,7 @@ if(isCheckPass){
                 "${flavorName}Library"(MavenPublication) {
                     //组件GVA坐标
                     groupId GROUPID
-                    artifactId ARTIFACTID
+                    artifactId loadProperty('APPENDFLAVORNAME') == 'true' ? (ARTIFACTID + "-${flavorName}") : ARTIFACTID
                     version VERSION
                     //要发布的产物
                     def bundleAarTask = tasks.findByName("bundle${flavorName.capitalize()}Release")
@@ -293,17 +293,17 @@ if(isCheckPass){
                                         //写入依赖的exclude
                                         def excludeRules = new HashSet(configuration.excludeRules)
                                         excludeRules.addAll(dependency.excludeRules)
-                                        if (dependency.transitive == false || excludeRules.size() > 0) {
+                                        if(configuration.transitive == false || dependency.transitive == false || excludeRules.size() > 0) {
                                             def exclusionsNode = dependencyNode.appendNode('exclusions')
-                                            if (dependency.transitive == false) {
+                                            if (configuration.transitive == false || dependency.transitive == false) {
                                                 def exclusionNode = exclusionsNode.appendNode('exclusion')
-                                                exclusionNode.appendNode('artifactId', '*')
                                                 exclusionNode.appendNode('groupId', '*')
+                                                exclusionNode.appendNode('artifactId', '*')
                                             } else {
                                                 for (def excludeRule: excludeRules) {
                                                     def exclusionNode = exclusionsNode.appendNode('exclusion')
-                                                    exclusionNode.appendNode('artifactId', excludeRule.module == null ? '*' : excludeRule.module)
                                                     exclusionNode.appendNode('groupId', excludeRule.group == null ? '*' : excludeRule.group)
+                                                    exclusionNode.appendNode('artifactId', excludeRule.module == null ? '*' : excludeRule.module)
                                                 }
                                             }
                                         }
