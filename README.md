@@ -43,19 +43,19 @@ ossrh.password=你的ossrh账号密码
 //发布aar到maven本地仓库
 gradle publishLibraryPublicationToMavenLocal
 
-//发布aar到maven远程release或snapshot仓库地址
+//发布aar到maven远程release或snapshot仓库
 gradle publishLibraryPublicationToMavenRepository
 
 //假设android组件含有flavorName为china，发布china版本的aar到maven本地仓库
 gradle publishChinaLibraryPublicationToMavenLocal
 
-//假设android组件含有flavorName为oversea， 发布oversea版本的aar到maven远程release或snapshot仓库地址
+//假设android组件含有flavorName为oversea， 发布oversea版本的aar到maven远程release或snapshot仓库
 gradle publishOverseaLibraryPublicationToMavenRepository
 
 //发布jar到maven本地仓库
 gradle publishJarPublicationToMavenLocal
 
-//发布jar到maven远程release或snapshot仓库地址
+//发布jar到maven远程release或snapshot仓库
 gradle publishJarPublicationToMavenRepository
 ```
 更详细使用可以查看[demo](https://github.com/rain9155/MavenPublishScript/tree/main/demo)
