@@ -26,7 +26,8 @@ def isSupportPublish(){
 }
 
 def loadProperty(String key){
-    return project.hasProperty(key) ? project[key] : ''
+    String value = project.hasProperty(key) ? project[key] : ''
+    return new String(value.getBytes(), 'utf-8')
 }
 
 def containProperty(String key){
@@ -161,8 +162,8 @@ if(isCheckPass){
 
     tasks.withType(Javadoc) {
         options.addStringOption('Xdoclint:none', '-quiet')
-        options.addStringOption('encoding', 'UTF-8')
-        options.addStringOption('charSet', 'UTF-8')
+        options.addStringOption('encoding', 'utf-8')
+        options.addStringOption('charSet', 'utf-8')
     }
 
     publishing.repositories{
