@@ -25,13 +25,17 @@ def isSupportPublish(){
     return isAndroidLibrary() || isJavaLibrary()
 }
 
-def loadProperty(String key){
+def readProperty(String key){
     String value = project.hasProperty(key) ? project[key] : ''
     return new String(value.getBytes(), 'utf-8')
 }
 
 def containProperty(String key){
     return project.properties.containsKey(key)
+}
+
+def readBoolean(String key){
+    return readProperty(key).toLowerCase() == 'true'
 }
 
 def loadLocalProperties(){
@@ -83,8 +87,16 @@ def getSrcDirs(variant){
 }
 
 def getAGPVersion() {
-    Class<?> gradleVersionClazz = project.plugins.getPlugin('com.android.library').class.getClassLoader().loadClass('com.android.builder.model.Version')
-    String version = (String) gradleVersionClazz.getDeclaredField('ANDROID_GRADLE_PLUGIN_VERSION').get(null)
+    def version
+    def agpDependency = project.rootProject.buildscript?.configurations?.findByName(ScriptHandler.CLASSPATH_CONFIGURATION)?.incoming?.dependencies?.find {
+        it.group == "com.android.tools.build" && it.name == "gradle"
+    }
+    if(agpDependency != null){
+        version = agpDependency.version
+    }else {
+        Class<?> gradleVersionClazz = project.plugins.getPlugin('com.android.library').class.getClassLoader().loadClass('com.android.builder.model.Version')
+        version = (String) gradleVersionClazz.getDeclaredField('ANDROID_GRADLE_PLUGIN_VERSION').get(null)
+    }
     return version
 }
 
@@ -99,7 +111,7 @@ def static getRuntimeClasspath(variant){
     return runtimeClassPath
 }
 
-def resolveConfigurations(configurations, resolvedConfigurations) {
+def resolveConfigurations(Collection<Configuration> configurations, Set<Configuration> resolvedConfigurations) {
     configurations.each {
         resolvedConfigurations.add(it)
         resolveConfigurations(it.extendsFrom, resolvedConfigurations)
@@ -133,17 +145,17 @@ if(isCheckPass){
             isCheckPass = false
             logError 'gpg的签名信息不可以为空'
         }else{
-            logDebug "signingKeyId = ${loadProperty(signingKeyId)}"
-            logDebug "signingPassword = ${loadProperty(signingPassword)}"
-            logDebug "signingSecretKeyRingFile = ${loadProperty(signingSecretKeyRingFile)}"
+            logDebug "signingKeyId = ${readProperty(signingKeyId)}"
+            logDebug "signingPassword = ${readProperty(signingPassword)}"
+            logDebug "signingSecretKeyRingFile = ${readProperty(signingSecretKeyRingFile)}"
         }
         if(!containProperty(ossrhUsername)
                 || !containProperty(ossrhPassword)){
             isCheckPass = false
             logError 'ossrh的账号信息不可以为空'
         }else{
-            logDebug "ossrhUsername = ${loadProperty(ossrhUsername)}"
-            logDebug "ossrhPassword = ${loadProperty(ossrhPassword)}"
+            logDebug "ossrhUsername = ${readProperty(ossrhUsername)}"
+            logDebug "ossrhPassword = ${readProperty(ossrhPassword)}"
         }
     }
     if(!containProperty('GROUPID')
@@ -172,8 +184,8 @@ if(isCheckPass){
             def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
             url = VERSION.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials {
-                username loadProperty(ossrhUsername)
-                password loadProperty(ossrhPassword)
+                username readProperty(ossrhUsername)
+                password readProperty(ossrhPassword)
             }
         }
     }
@@ -189,7 +201,7 @@ if(isCheckPass){
                 "${flavorName}Library"(MavenPublication) {
                     //组件GVA坐标
                     groupId GROUPID
-                    artifactId loadProperty('APPENDFLAVORNAME') == 'true' ? (ARTIFACTID + "-${flavorName}") : ARTIFACTID
+                    artifactId readBoolean('APPENDFLAVORNAME') ? (ARTIFACTID + "-${flavorName}") : ARTIFACTID
                     version VERSION
                     //要发布的产物
                     def bundleAarTask = tasks.findByName("bundle${flavorName.capitalize()}Release")
@@ -221,28 +233,28 @@ if(isCheckPass){
                     pom {
                         packaging = 'aar'
                         //组件的基本信息
-                        name = loadProperty('ARTIFACTID')
-                        description = loadProperty('DESCRIPTION')
-                        url = loadProperty('URL')
+                        name = readProperty('ARTIFACTID')
+                        description = readProperty('DESCRIPTION')
+                        url = readProperty('URL')
                         //licenses文件
                         licenses {
                             license {
-                                name = loadProperty('LICENSENAME')
-                                url = loadProperty('LICENSEURL')
+                                name = readProperty('LICENSENAME')
+                                url = readProperty('LICENSEURL')
                             }
                         }
                         //开发者信息
                         developers {
                             developer {
-                                name = loadProperty('DEVELOPERNAME')
-                                email = loadProperty('DEVELOPEREMAIL')
+                                name = readProperty('DEVELOPERNAME')
+                                email = readProperty('DEVELOPEREMAIL')
                             }
                         }
                         //版本控制仓库地址
                         scm {
-                            url = loadProperty('SCMURL')
-                            connection = "scm:${loadProperty('SCMCONNECTION')}"
-                            developerConnection = "scm:${loadProperty('SCMDEVELOPERCONNECTION')}"
+                            url = readProperty('SCMURL')
+                            connection = "scm:${readProperty('SCMCONNECTION')}"
+                            developerConnection = "scm:${readProperty('SCMDEVELOPERCONNECTION')}"
                         }
                         //pom文件的字符编码
                         properties = [
@@ -333,25 +345,25 @@ if(isCheckPass){
                 from components.java
                 pom {
                     packaging = 'jar'
-                    name = loadProperty('ARTIFACTID')
-                    description = loadProperty('DESCRIPTION')
-                    url = loadProperty('URL')
+                    name = readProperty('ARTIFACTID')
+                    description = readProperty('DESCRIPTION')
+                    url = readProperty('URL')
                     licenses {
                         license {
-                            name = loadProperty('LICENSENAME')
-                            url = loadProperty('LICENSEURL')
+                            name = readProperty('LICENSENAME')
+                            url = readProperty('LICENSEURL')
                         }
                     }
                     developers {
                         developer {
-                            name = loadProperty('DEVELOPERNAME')
-                            email = loadProperty('DEVELOPEREMAIL')
+                            name = readProperty('DEVELOPERNAME')
+                            email = readProperty('DEVELOPEREMAIL')
                         }
                     }
                     scm {
-                        url = loadProperty('SCMURL')
-                        connection = "scm:${loadProperty('SCMCONNECTION')}"
-                        developerConnection = "scm:${loadProperty('SCMDEVELOPERCONNECTION')}"
+                        url = readProperty('SCMURL')
+                        connection = "scm:${readProperty('SCMCONNECTION')}"
+                        developerConnection = "scm:${readProperty('SCMDEVELOPERCONNECTION')}"
                     }
                     properties = [
                             'project.build.sourceEncoding':'UTF-8',
