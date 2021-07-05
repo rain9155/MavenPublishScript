@@ -362,8 +362,8 @@ if(isCheckPass){
                     }
                     scm {
                         url = readProperty('SCMURL')
-                        connection = "scm:${readProperty('SCMCONNECTION')}"
-                        developerConnection = "scm:${readProperty('SCMDEVELOPERCONNECTION')}"
+                        connection = readProperty('SCMCONNECTION')
+                        developerConnection = readProperty('SCMDEVELOPERCONNECTION')
                     }
                     properties = [
                             'project.build.sourceEncoding':'UTF-8',

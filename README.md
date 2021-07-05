@@ -21,9 +21,10 @@ LICENSENAME=The Apache License, Version 2.0
 LICENSEURL=http://www.apache.org/licenses/LICENSE-2.0.txt
 DEVELOPERNAME=rain9155
 DEVELOPEREMAIL=jianyu9155@gmail.com
-SCMURL=https://github.com/rain9155/BaseAdapter.git
-SCMCONNECTION=git:git://github.com/rain9155/BaseAdapter.git
-SCMDEVELOPERCONNECTION=git:ssh://github.com/rain9155/BaseAdapter.git
+# scm信息，格式参考http://maven.apache.org/scm/scm-url-format.html
+SCMURL=https://github.com/rain9155/BaseAdapter/tree/master
+SCMCONNECTION=scm:git:git://github.com/rain9155/BaseAdapter.git
+SCMDEVELOPERCONNECTION=scm:git:ssh://github.com:rain9155/BaseAdapter.git
 # 如果发布的是android组件，为true时，支持根据flavor动态生成组件名称，规则为ARTIFACTID-{flavorName}，默认为false
 APPENDFLAVORNAME=true
 ```
