@@ -256,12 +256,11 @@ if(isCheckPass){
                             connection = "scm:${readProperty('SCMCONNECTION')}"
                             developerConnection = "scm:${readProperty('SCMDEVELOPERCONNECTION')}"
                         }
-                        //pom文件的字符编码
-                        properties = [
-                            'project.build.sourceEncoding':'UTF-8',
-                            'project.reporting.outputEncoding':'UTF-8',
-                            'maven.compiler.encoding':'UTF-8'
-                        ]
+//                        properties = [
+//                            'project.build.sourceEncoding':'UTF-8',
+//                            'project.reporting.outputEncoding':'UTF-8',
+//                            'maven.compiler.encoding':'UTF-8'
+//                        ]
                         //生成组件的依赖关系
                         withXml {
                             def dependenciesNode = asNode().appendNode('dependencies')
@@ -365,11 +364,11 @@ if(isCheckPass){
                         connection = readProperty('SCMCONNECTION')
                         developerConnection = readProperty('SCMDEVELOPERCONNECTION')
                     }
-                    properties = [
-                            'project.build.sourceEncoding':'UTF-8',
-                            'project.reporting.outputEncoding':'UTF-8',
-                            'maven.compiler.encoding':'UTF-8'
-                    ]
+//                    properties = [
+//                            'project.build.sourceEncoding':'UTF-8',
+//                            'project.reporting.outputEncoding':'UTF-8',
+//                            'maven.compiler.encoding':'UTF-8'
+//                    ]
                 }
             }
         }

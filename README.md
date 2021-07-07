@@ -58,5 +58,14 @@ gradle publishJarPublicationToMavenLocal
 
 //发布jar到maven远程release或snapshot仓库
 gradle publishJarPublicationToMavenRepository
+
+//发布所有aar和jar到maven本地仓库
+gradle publishToMavenLocal
+
+//发布所有aar和jar到maven远程release或snapshot仓库
+gradle publishAllPublicationsToMavenRepository
+
+//发布所有aar和jar到maven本地仓库和maven远程release或snapshot仓库
+gradle publish
 ```
 更详细使用可以查看[demo](https://github.com/rain9155/MavenPublishScript/tree/main/demo)
