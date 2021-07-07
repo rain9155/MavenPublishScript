@@ -5,7 +5,7 @@ def ossrhUsername = 'ossrh.username'
 def ossrhPassword = 'ossrh.password'
 def isCheckPass = true
 
-def logDebug(String msg){
+def logWarn(String msg){
     project.logger.log(LogLevel.WARN, "MavenPublishScript: ${msg}")
 }
 
@@ -122,16 +122,16 @@ if(!isSupportPublish()){
     isCheckPass = false
     logError '目前只支持android工程和java工程的组件发布，暂不支持其他平台的组件发布'
 }else if(isAndroidLibrary()){
-    logDebug "项目是一个android工程"
+    logWarn "项目是一个android工程"
     def version = getAGPVersion()
     if(version < '3.1.0'){
         isCheckPass = false
         logError '请升级android gradle pulgin版本, 不支持3.1.0以下的版本'
     }else{
-        logDebug "AGP version = ${version}"
+        logWarn "AGP version = ${version}"
     }
 }else if(isJavaLibrary()){
-    logDebug '项目是一个java工程'
+    logWarn '项目是一个java工程'
 }
 
 if(isCheckPass){
@@ -145,17 +145,17 @@ if(isCheckPass){
             isCheckPass = false
             logError 'gpg的签名信息不可以为空'
         }else{
-            logDebug "signingKeyId = ${readProperty(signingKeyId)}"
-            logDebug "signingPassword = ${readProperty(signingPassword)}"
-            logDebug "signingSecretKeyRingFile = ${readProperty(signingSecretKeyRingFile)}"
+            logWarn "signingKeyId = ${readProperty(signingKeyId)}"
+            logWarn "signingPassword = ${readProperty(signingPassword)}"
+            logWarn "signingSecretKeyRingFile = ${readProperty(signingSecretKeyRingFile)}"
         }
         if(!containProperty(ossrhUsername)
                 || !containProperty(ossrhPassword)){
             isCheckPass = false
             logError 'ossrh的账号信息不可以为空'
         }else{
-            logDebug "ossrhUsername = ${readProperty(ossrhUsername)}"
-            logDebug "ossrhPassword = ${readProperty(ossrhPassword)}"
+            logWarn "ossrhUsername = ${readProperty(ossrhUsername)}"
+            logWarn "ossrhPassword = ${readProperty(ossrhPassword)}"
         }
     }
     if(!containProperty('GROUPID')
@@ -164,7 +164,7 @@ if(isCheckPass){
         isCheckPass = false
         logError '组件的GAV不可以为空'
     }else{
-        logDebug "GAV = ${GROUPID}:${ARTIFACTID}:${VERSION}"
+        logWarn "GAV = ${GROUPID}:${ARTIFACTID}:${VERSION}"
     }
 }
 
@@ -197,7 +197,7 @@ if(isCheckPass){
                     return
                 }
                 def flavorName = variant.flavorName
-                logDebug "variant = ${flavorName}Release"
+                logWarn "variant = ${flavorName}Release"
                 "${flavorName}Library"(MavenPublication) {
                     //组件GVA坐标
                     groupId GROUPID
@@ -210,7 +210,7 @@ if(isCheckPass){
                     }
                     artifact bundleAarTask != null ? bundleAarTask : "${buildDir}/outputs/aar/${getName()}-release.aar"
                     def srcDirs = getSrcDirs(variant)
-                    logDebug "srcDirs = ${srcDirs}"
+                    logWarn "srcDirs = ${srcDirs}"
                     def sourcesJarTask = tasks.create("${flavorName}${isEmpty(flavorName) ? 's' : 'S'}ourcesJar", Jar){
                         archiveClassifier = 'sources'
                         from srcDirs
@@ -272,7 +272,7 @@ if(isCheckPass){
                                 def group = resolvedDependency.moduleGroup
                                 def name = resolvedDependency.moduleName
                                 def version = resolvedDependency.moduleVersion
-                                logDebug "resolvedDependency = ${group}:${name}:${version}"
+                                logWarn "resolvedDependency = ${group}:${name}:${version}"
                                 if(version != 'unspecified'){
                                     resolvedDependencies["${group}:${name}"] = version
                                 }
@@ -286,7 +286,7 @@ if(isCheckPass){
                                     def name = dependency.name
                                     def version = dependency.version
                                     def configurationName = configuration.name.toLowerCase()
-                                    logDebug "dependency = ${configurationName} ${group}:${name}:${version}"
+                                    logWarn "dependency = ${configurationName} ${group}:${name}:${version}"
                                     String key = "${group}:${name}"
                                     if(resolvedDependencies.containsKey(key)){
                                         def dependencyNode = dependenciesNode.appendNode('dependency')
