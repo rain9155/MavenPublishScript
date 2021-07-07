@@ -27,7 +27,7 @@ def isSupportPublish(){
 
 def readProperty(String key){
     String value = project.hasProperty(key) ? project[key] : ''
-    return new String(value.getBytes(), 'utf-8')
+    return new String(value.getBytes('utf-8'), 'utf-8')
 }
 
 def containProperty(String key){
