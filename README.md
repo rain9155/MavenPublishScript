@@ -7,7 +7,7 @@
 apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/script/publication.gradle'
 ```
 然后在组件的gradle.properties(没有则创建)中添加组件信息，其中GAV坐标是必填信息，其他是可选信息：
-```groovy
+```
 # GAV坐标
 GROUPID=io.github.rain9155
 ARTIFACTID=mavenpublishscript
@@ -29,7 +29,7 @@ SCMDEVELOPERCONNECTION=scm:git:ssh://github.com:rain9155/MavenPublishScript.git
 APPENDFLAVORNAME=true
 ```
 然后在项目根目录的local.properties(没有则创建)中添加gpg签名信息和ossrh账号信息，记得要把local.properties从你的版本控制中移除，避免泄漏你的签名信息和账号信息：
-```groovy
+```
 # gpg签名信息
 signing.keyId=你的密钥id
 signing.password=你的私钥密码
