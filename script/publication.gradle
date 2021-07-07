@@ -5,7 +5,7 @@ def ossrhUsername = 'ossrh.username'
 def ossrhPassword = 'ossrh.password'
 def isCheckPass = true
 
-def logDebug(String msg){
+def logWarn(String msg){
     project.logger.log(LogLevel.WARN, "MavenPublishScript: ${msg}")
 }
 
@@ -25,12 +25,17 @@ def isSupportPublish(){
     return isAndroidLibrary() || isJavaLibrary()
 }
 
-def loadProperty(String key){
-    return project.hasProperty(key) ? project[key] : ''
+def readProperty(String key){
+    String value = project.hasProperty(key) ? project[key] : ''
+    return new String(value.getBytes(), 'utf-8')
 }
 
 def containProperty(String key){
     return project.properties.containsKey(key)
+}
+
+def readBoolean(String key){
+    return readProperty(key).toLowerCase() == 'true'
 }
 
 def loadLocalProperties(){
@@ -82,8 +87,16 @@ def getSrcDirs(variant){
 }
 
 def getAGPVersion() {
-    Class<?> gradleVersionClazz = project.plugins.getPlugin('com.android.library').class.getClassLoader().loadClass('com.android.builder.model.Version')
-    String version = (String) gradleVersionClazz.getDeclaredField('ANDROID_GRADLE_PLUGIN_VERSION').get(null)
+    def version
+    def agpDependency = project.rootProject.buildscript?.configurations?.findByName(ScriptHandler.CLASSPATH_CONFIGURATION)?.incoming?.dependencies?.find {
+        it.group == "com.android.tools.build" && it.name == "gradle"
+    }
+    if(agpDependency != null){
+        version = agpDependency.version
+    }else {
+        Class<?> gradleVersionClazz = project.plugins.getPlugin('com.android.library').class.getClassLoader().loadClass('com.android.builder.model.Version')
+        version = (String) gradleVersionClazz.getDeclaredField('ANDROID_GRADLE_PLUGIN_VERSION').get(null)
+    }
     return version
 }
 
@@ -98,7 +111,7 @@ def static getRuntimeClasspath(variant){
     return runtimeClassPath
 }
 
-def resolveConfigurations(configurations, resolvedConfigurations) {
+def resolveConfigurations(Collection<Configuration> configurations, Set<Configuration> resolvedConfigurations) {
     configurations.each {
         resolvedConfigurations.add(it)
         resolveConfigurations(it.extendsFrom, resolvedConfigurations)
@@ -109,16 +122,16 @@ if(!isSupportPublish()){
     isCheckPass = false
     logError '目前只支持android工程和java工程的组件发布，暂不支持其他平台的组件发布'
 }else if(isAndroidLibrary()){
-    logDebug "项目是一个android工程"
+    logWarn "项目是一个android工程"
     def version = getAGPVersion()
     if(version < '3.1.0'){
         isCheckPass = false
         logError '请升级android gradle pulgin版本, 不支持3.1.0以下的版本'
     }else{
-        logDebug "AGP version = ${version}"
+        logWarn "AGP version = ${version}"
     }
 }else if(isJavaLibrary()){
-    logDebug '项目是一个java工程'
+    logWarn '项目是一个java工程'
 }
 
 if(isCheckPass){
@@ -132,17 +145,17 @@ if(isCheckPass){
             isCheckPass = false
             logError 'gpg的签名信息不可以为空'
         }else{
-            logDebug "signingKeyId = ${loadProperty(signingKeyId)}"
-            logDebug "signingPassword = ${loadProperty(signingPassword)}"
-            logDebug "signingSecretKeyRingFile = ${loadProperty(signingSecretKeyRingFile)}"
+            logWarn "signingKeyId = ${readProperty(signingKeyId)}"
+            logWarn "signingPassword = ${readProperty(signingPassword)}"
+            logWarn "signingSecretKeyRingFile = ${readProperty(signingSecretKeyRingFile)}"
         }
         if(!containProperty(ossrhUsername)
                 || !containProperty(ossrhPassword)){
             isCheckPass = false
             logError 'ossrh的账号信息不可以为空'
         }else{
-            logDebug "ossrhUsername = ${loadProperty(ossrhUsername)}"
-            logDebug "ossrhPassword = ${loadProperty(ossrhPassword)}"
+            logWarn "ossrhUsername = ${readProperty(ossrhUsername)}"
+            logWarn "ossrhPassword = ${readProperty(ossrhPassword)}"
         }
     }
     if(!containProperty('GROUPID')
@@ -151,7 +164,7 @@ if(isCheckPass){
         isCheckPass = false
         logError '组件的GAV不可以为空'
     }else{
-        logDebug "GAV = ${GROUPID}:${ARTIFACTID}:${VERSION}"
+        logWarn "GAV = ${GROUPID}:${ARTIFACTID}:${VERSION}"
     }
 }
 
@@ -159,14 +172,20 @@ if(isCheckPass){
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'utf-8')
+        options.addStringOption('charSet', 'utf-8')
+    }
+
     publishing.repositories{
         maven {
             def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
             def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
             url = VERSION.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials {
-                username loadProperty(ossrhUsername)
-                password loadProperty(ossrhPassword)
+                username readProperty(ossrhUsername)
+                password readProperty(ossrhPassword)
             }
         }
     }
@@ -178,11 +197,11 @@ if(isCheckPass){
                     return
                 }
                 def flavorName = variant.flavorName
-                logDebug "variant = ${flavorName}Release"
+                logWarn "variant = ${flavorName}Release"
                 "${flavorName}Library"(MavenPublication) {
                     //组件GVA坐标
                     groupId GROUPID
-                    artifactId ARTIFACTID
+                    artifactId readBoolean('APPENDFLAVORNAME') ? (ARTIFACTID + "-${flavorName}") : ARTIFACTID
                     version VERSION
                     //要发布的产物
                     def bundleAarTask = tasks.findByName("bundle${flavorName.capitalize()}Release")
@@ -191,7 +210,7 @@ if(isCheckPass){
                     }
                     artifact bundleAarTask != null ? bundleAarTask : "${buildDir}/outputs/aar/${getName()}-release.aar"
                     def srcDirs = getSrcDirs(variant)
-                    logDebug "srcDirs = ${srcDirs}"
+                    logWarn "srcDirs = ${srcDirs}"
                     def sourcesJarTask = tasks.create("${flavorName}${isEmpty(flavorName) ? 's' : 'S'}ourcesJar", Jar){
                         archiveClassifier = 'sources'
                         from srcDirs
@@ -202,6 +221,7 @@ if(isCheckPass){
                         failOnError false
                         source srcDirs
                         classpath += files(android.getBootClasspath().join(File.pathSeparator))
+                        classpath += configurations.compile
                     }
                     def javadocJarTask = tasks.create("${flavorName}${isEmpty(flavorName) ? 'j' : 'J'}avadocJar", Jar){
                         archiveClassifier = 'javadoc'
@@ -213,29 +233,35 @@ if(isCheckPass){
                     pom {
                         packaging = 'aar'
                         //组件的基本信息
-                        name = loadProperty('ARTIFACTID')
-                        description = loadProperty('DESCRIPTION')
-                        url = loadProperty('URL')
+                        name = readProperty('ARTIFACTID')
+                        description = readProperty('DESCRIPTION')
+                        url = readProperty('URL')
                         //licenses文件
                         licenses {
                             license {
-                                name = loadProperty('LICENSENAME')
-                                url = loadProperty('LICENSEURL')
+                                name = readProperty('LICENSENAME')
+                                url = readProperty('LICENSEURL')
                             }
                         }
                         //开发者信息
                         developers {
                             developer {
-                                name = loadProperty('DEVELOPERNAME')
-                                email = loadProperty('DEVELOPEREMAIL')
+                                name = readProperty('DEVELOPERNAME')
+                                email = readProperty('DEVELOPEREMAIL')
                             }
                         }
                         //版本控制仓库地址
                         scm {
-                            url = loadProperty('SCMURL')
-                            connection = "scm:${loadProperty('SCMCONNECTION')}"
-                            developerConnection = "scm:${loadProperty('SCMDEVELOPERCONNECTION')}"
+                            url = readProperty('SCMURL')
+                            connection = "scm:${readProperty('SCMCONNECTION')}"
+                            developerConnection = "scm:${readProperty('SCMDEVELOPERCONNECTION')}"
                         }
+                        //pom文件的字符编码
+                        properties = [
+                            'project.build.sourceEncoding':'UTF-8',
+                            'project.reporting.outputEncoding':'UTF-8',
+                            'maven.compiler.encoding':'UTF-8'
+                        ]
                         //生成组件的依赖关系
                         withXml {
                             def dependenciesNode = asNode().appendNode('dependencies')
@@ -246,7 +272,7 @@ if(isCheckPass){
                                 def group = resolvedDependency.moduleGroup
                                 def name = resolvedDependency.moduleName
                                 def version = resolvedDependency.moduleVersion
-                                logDebug "resolvedDependency = ${group}:${name}:${version}"
+                                logWarn "resolvedDependency = ${group}:${name}:${version}"
                                 if(version != 'unspecified'){
                                     resolvedDependencies["${group}:${name}"] = version
                                 }
@@ -260,7 +286,7 @@ if(isCheckPass){
                                     def name = dependency.name
                                     def version = dependency.version
                                     def configurationName = configuration.name.toLowerCase()
-                                    logDebug "dependency = ${configurationName} ${group}:${name}:${version}"
+                                    logWarn "dependency = ${configurationName} ${group}:${name}:${version}"
                                     String key = "${group}:${name}"
                                     if(resolvedDependencies.containsKey(key)){
                                         def dependencyNode = dependenciesNode.appendNode('dependency')
@@ -279,17 +305,17 @@ if(isCheckPass){
                                         //写入依赖的exclude
                                         def excludeRules = new HashSet(configuration.excludeRules)
                                         excludeRules.addAll(dependency.excludeRules)
-                                        if (dependency.transitive == false || excludeRules.size() > 0) {
+                                        if(configuration.transitive == false || dependency.transitive == false || excludeRules.size() > 0) {
                                             def exclusionsNode = dependencyNode.appendNode('exclusions')
-                                            if (dependency.transitive == false) {
+                                            if (configuration.transitive == false || dependency.transitive == false) {
                                                 def exclusionNode = exclusionsNode.appendNode('exclusion')
-                                                exclusionNode.appendNode('artifactId', '*')
                                                 exclusionNode.appendNode('groupId', '*')
+                                                exclusionNode.appendNode('artifactId', '*')
                                             } else {
                                                 for (def excludeRule: excludeRules) {
                                                     def exclusionNode = exclusionsNode.appendNode('exclusion')
-                                                    exclusionNode.appendNode('artifactId', excludeRule.module == null ? '*' : excludeRule.module)
                                                     exclusionNode.appendNode('groupId', excludeRule.group == null ? '*' : excludeRule.group)
+                                                    exclusionNode.appendNode('artifactId', excludeRule.module == null ? '*' : excludeRule.module)
                                                 }
                                             }
                                         }
@@ -319,26 +345,31 @@ if(isCheckPass){
                 from components.java
                 pom {
                     packaging = 'jar'
-                    name = loadProperty('ARTIFACTID')
-                    description = loadProperty('DESCRIPTION')
-                    url = loadProperty('URL')
+                    name = readProperty('ARTIFACTID')
+                    description = readProperty('DESCRIPTION')
+                    url = readProperty('URL')
                     licenses {
                         license {
-                            name = loadProperty('LICENSENAME')
-                            url = loadProperty('LICENSEURL')
+                            name = readProperty('LICENSENAME')
+                            url = readProperty('LICENSEURL')
                         }
                     }
                     developers {
                         developer {
-                            name = loadProperty('DEVELOPERNAME')
-                            email = loadProperty('DEVELOPEREMAIL')
+                            name = readProperty('DEVELOPERNAME')
+                            email = readProperty('DEVELOPEREMAIL')
                         }
                     }
                     scm {
-                        url = loadProperty('SCMURL')
-                        connection = "scm:${loadProperty('SCMCONNECTION')}"
-                        developerConnection = "scm:${loadProperty('SCMDEVELOPERCONNECTION')}"
+                        url = readProperty('SCMURL')
+                        connection = readProperty('SCMCONNECTION')
+                        developerConnection = readProperty('SCMDEVELOPERCONNECTION')
                     }
+                    properties = [
+                            'project.build.sourceEncoding':'UTF-8',
+                            'project.reporting.outputEncoding':'UTF-8',
+                            'maven.compiler.encoding':'UTF-8'
+                    ]
                 }
             }
         }
