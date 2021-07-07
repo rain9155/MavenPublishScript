@@ -10,21 +10,21 @@ apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/
 ```groovy
 # GAV坐标
 GROUPID=io.github.rain9155
-ARTIFACTID=baseadapter
-# 版本加SNAPSHOT后缀可发布到maven远程snapshot地址，如1.0.3-SNAPSHOT
-VERSION=1.0.3
+ARTIFACTID=mavenpublishscript
+# 版本加SNAPSHOT后缀可发布到maven远程snapshot地址，如1.0.0-SNAPSHOT
+VERSION=1.0.0
 
 # 可选信息
-DESCRIPTION=封装RecyclerView的Adapter，减少Adapter重复代码的编写，支持多种类型的itemType、自动加载更多、添加emptyView和添加headerView
-URL=https://github.com/rain9155/BaseAdapter
+DESCRIPTION=gradle发布组件到MavenCentral脚本，支持aar和jar发布
+URL=https://github.com/rain9155/MavenPublishScript
 LICENSENAME=The Apache License, Version 2.0
 LICENSEURL=http://www.apache.org/licenses/LICENSE-2.0.txt
 DEVELOPERNAME=rain9155
 DEVELOPEREMAIL=jianyu9155@gmail.com
 # scm信息，格式参考http://maven.apache.org/scm/scm-url-format.html
-SCMURL=https://github.com/rain9155/BaseAdapter/tree/master
-SCMCONNECTION=scm:git:git://github.com/rain9155/BaseAdapter.git
-SCMDEVELOPERCONNECTION=scm:git:ssh://github.com:rain9155/BaseAdapter.git
+SCMURL=https://github.com/rain9155/MavenPublishScript/tree/master
+SCMCONNECTION=scm:git:git://github.com/rain9155/MavenPublishScript.git
+SCMDEVELOPERCONNECTION=scm:git:ssh://github.com:rain9155/MavenPublishScript.git
 # 如果发布的是android组件，为true时，支持根据flavor动态生成组件名称，规则为ARTIFACTID-{flavorName}，默认为false
 APPENDFLAVORNAME=true
 ```
