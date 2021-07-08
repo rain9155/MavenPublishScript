@@ -39,7 +39,7 @@ signing.secretKeyRingFile=你的私钥文件路径
 ossrh.username=你的ossrh账号名
 ossrh.password=你的ossrh账号密码
 ```
-最后在命令行执行gradle任务发布组件，如果你发布的是android组件(aar)，执行的任务的名称格式为`publish{flavorName}LibraryPublicationToMavenRepository`或`publish{flavorName}LibraryPublicationToMavenLocal`，其中flavorName为android组件的flavor的名称，首字母大写，没有则不填，如果你发布的是java组件(jar)，执行的任务名称为`publishJarPublicationToMavenRepository`或`publishJarPublicationToMavenLocal`：
+最后在命令行执行gradle任务发布组件，如果你发布的是android组件(aar)，执行的任务的名称格式为`publish{flavorName}LibraryPublicationToMavenRepository`或`publish{flavorName}LibraryPublicationToMavenLocal`，其中flavorName为android组件的flavor的名称，首字母大写，没有则不填flavorName，如果你发布的是java组件(jar)，执行的任务名称为`publishJarPublicationToMavenRepository`或`publishJarPublicationToMavenLocal`：
 ```bash
 //发布aar到maven本地仓库
 gradle publishLibraryPublicationToMavenLocal
