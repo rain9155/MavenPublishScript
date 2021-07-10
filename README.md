@@ -1,5 +1,5 @@
 # MavenPublishScript
-### gradle发布组件到MavenCentral脚本，支持aar和jar发布
+### gradle发布组件到MavenCentral脚本，支持android组件和java组件发布，如有问题欢迎[issue](https://github.com/rain9155/MavenPublishScript/issues)
 
 ## 使用方法
 首先在你的组件的build.gradle中apply该脚本：
@@ -15,7 +15,7 @@ ARTIFACTID=mavenpublishscript
 VERSION=1.0.0
 
 # 可选信息
-DESCRIPTION=gradle发布组件到MavenCentral脚本，支持aar和jar发布
+DESCRIPTION=gradle发布组件到MavenCentral脚本，支持android组件和java组件发布
 URL=https://github.com/rain9155/MavenPublishScript
 LICENSENAME=The Apache License, Version 2.0
 LICENSEURL=http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -39,33 +39,33 @@ signing.secretKeyRingFile=你的私钥文件路径
 ossrh.username=你的ossrh账号名
 ossrh.password=你的ossrh账号密码
 ```
-最后在命令行执行gradle任务发布组件，如果你发布的是android组件(aar)，执行的任务的名称格式为`publish{flavorName}LibraryPublicationToMavenRepository`或`publish{flavorName}LibraryPublicationToMavenLocal`，其中flavorName为android组件的flavor的名称，首字母大写，没有则不填flavorName，如果你发布的是java组件(jar)，执行的任务名称为`publishJarPublicationToMavenRepository`或`publishJarPublicationToMavenLocal`：
+最后在命令行执行gradle任务发布组件，如果你发布的是android组件，执行的任务的名称格式为`publish{flavorName}AndroidlibPublicationToMavenRepository`或`publish{flavorName}AndroidlibPublicationToMavenLocal`，其中flavorName为android组件的flavor的名称，首字母大写，没有则不填flavorName，如果你发布的是java组件，执行的任务名称为`publishJavalibPublicationToMavenRepository`或`publishJavalibPublicationToMavenLocal`：
 ```bash
-//发布aar到maven本地仓库
-gradle publishLibraryPublicationToMavenLocal
+//发布android组件到maven本地仓库
+gradle publishAndroidlibPublicationToMavenLocal
 
-//发布aar到maven远程release或snapshot仓库
-gradle publishLibraryPublicationToMavenRepository
+//发布android组件到maven远程release或snapshot仓库
+gradle publishAndroidlibPublicationToMavenRepository
 
-//假设android组件含有flavorName为china，发布china版本的aar到maven本地仓库
-gradle publishChinaLibraryPublicationToMavenLocal
+//假设android组件含有flavorName为china，发布china版本的android组件到maven本地仓库
+gradle publishChinaAndroidlibPublicationToMavenLocal
+j
+//假设android组件含有flavorName为oversea， 发布oversea版本的android组件到maven远程release或snapshot仓库
+gradle publishOverseaAndroidlibPublicationToMavenRepository
 
-//假设android组件含有flavorName为oversea， 发布oversea版本的aar到maven远程release或snapshot仓库
-gradle publishOverseaLibraryPublicationToMavenRepository
+//发布java组件到maven本地仓库
+gradle publishJavalibPublicationToMavenLocal
 
-//发布jar到maven本地仓库
-gradle publishJarPublicationToMavenLocal
+//发布java组件到maven远程release或snapshot仓库
+gradle publishJavalibPublicationToMavenRepository
 
-//发布jar到maven远程release或snapshot仓库
-gradle publishJarPublicationToMavenRepository
-
-//发布所有aar和jar到maven本地仓库
+//发布所有android组件和java组件到maven本地仓库
 gradle publishToMavenLocal
 
-//发布所有aar和jar到maven远程release或snapshot仓库
+//发布所有android组件和java组件到maven远程release或snapshot仓库
 gradle publishAllPublicationsToMavenRepository
 
-//发布所有aar和jar到maven本地仓库和maven远程release或snapshot仓库
+//发布所有android组件和java组件到maven本地仓库和maven远程release或snapshot仓库
 gradle publish
 ```
 更详细使用可以查看[demo](https://github.com/rain9155/MavenPublishScript/tree/main/demo)
