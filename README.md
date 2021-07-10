@@ -1,5 +1,5 @@
 # MavenPublishScript
-### gradle发布组件到MavenCentral脚本，支持android组件和java组件发布，如有问题欢迎[issue](https://github.com/rain9155/MavenPublishScript/issues)
+### Gradle发布组件到MavenCentral脚本，支持android组件和java组件发布，如有问题欢迎[issue](https://github.com/rain9155/MavenPublishScript/issues)
 
 ## 使用方法
 首先在你的组件的build.gradle中apply该脚本：
