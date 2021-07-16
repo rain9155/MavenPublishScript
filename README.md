@@ -17,7 +17,7 @@ VERSION=1.0.0
 # 下面都是可选信息
 DESCRIPTION=发布组件到Maven仓库的gradle脚本，支持aar和jar发布
 URL=https://github.com/rain9155/MavenPublishScript
-# 支持更换发布的仓库地址，如果你想发布到私有仓库、本地目录等，可以在这里设置，默认发布到Sonatype OSSRH
+# 支持更换发布的仓库地址(release或snapshot)，如果你想发布到私有仓库、本地目录等，可以在这里设置，默认发布到Sonatype OSSRH
 REPOSITORY_URL=./repo/release
 REPOSITORY_SNAPSHOT_URL=./repo/shapshot
 # 支持二次打包本地aar或jar组件发布到仓库，只要在这里填写组件的本地地址就行，多个组件地址用英文分号;隔开
