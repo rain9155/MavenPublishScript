@@ -8,32 +8,41 @@ apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/
 ```
 然后在组件的gradle.properties(没有则创建)中添加组件信息，其中GAV坐标是必填信息，其他是可选信息：
 ```
-# GAV坐标
+### GAV坐标
 GROUPID=io.github.rain9155
 ARTIFACTID=mavenpublishscript
 # 版本加SNAPSHOT后缀可发布到maven远程snapshot地址，如1.0.0-SNAPSHOT
 VERSION=1.0.0
 
-# 下面都是可选信息
+### 下面都是可选信息
+# 组件的基本描述
 DESCRIPTION=发布组件到Maven仓库的gradle脚本，支持aar和jar发布
 URL=https://github.com/rain9155/MavenPublishScript
+
 # 支持更换发布的仓库地址(release或snapshot)，如果你想发布到私有仓库、本地目录等，可以在这里设置，默认发布到Sonatype OSSRH
 REPOSITORY_URL=./repo/release
 REPOSITORY_SNAPSHOT_URL=./repo/shapshot
+
 # 支持二次打包本地aar或jar组件发布到仓库，只要在这里填写组件的本地地址就行，多个组件地址用英文分号;隔开
 ARTIFACT_PATH=./libs/javalib.jar;./libs/androidlib,aar
+
 # 如果发布的是android组件，为true时，支持根据flavor动态生成组件名称，规则为ARTIFACTID-{flavorName}，默认为false
 APPEND_FLAVORNAME=true
+
 # 支持跳过签名校验，为true时不进行签名，如果你发布的组件不想进行gpg签名，可以设置为true，默认为false
 SKIP_SIGNATURE=true
+
 # 支持跳过账号校验，为true时不进行账号信息校验，如果你的仓库地址不需要账号就能访问，可以设置为true，默认为false
 SKIP_CREDENTIAL=true
+
 # 开发者信息
 DEVELOPER_NAME=rain9155
 DEVELOPER_EMAIL=jianyu9155@gmail.com
+
 # license信息
 LICENSE_NAME=The Apache License, Version 2.0
 LICENSE_URL=http://www.apache.org/licenses/LICENSE-2.0.txt
+
 # scm信息，格式参考http://maven.apache.org/scm/scm-url-format.html
 SCM_URL=https://github.com/rain9155/MavenPublishScript/tree/master
 SCM_CONNECTION=scm:git:git://github.com/rain9155/MavenPublishScript.git
