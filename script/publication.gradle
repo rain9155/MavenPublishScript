@@ -21,6 +21,7 @@ if(helper.isCheckPass){
     publishing.repositories{
         maven {
             url = helper.getMavenUrl()
+            helper.log "mavenUrl = ${url}"
             if(!helper.isSkipCredential(url)){
                 credentials {
                     def credentials = helper.getCredentials()
@@ -110,24 +111,24 @@ class Helper{
     private def signingSecretKeyRingFile = 'signing.secretKeyRingFile'
     private def ossrhUsername = 'ossrh.username'
     private def ossrhPassword = 'ossrh.password'
-    private def groupId = 'GROUPID'
-    private def artifactId = 'ARTIFACTID'
-    private def version = 'VERSION'
-    private def des = 'DESCRIPTION'
-    private def webSite = 'URL'
-    private def appendFlavorName = 'APPEND_FLAVORNAME'
-    private def developerName = 'DEVELOPER_NAME'
-    private def developerEmail = 'DEVELOPER_EMAIL'
-    private def licenseName = 'LICENSE_NAME'
-    private def licenseUrl = 'LICENSE_URL'
-    private def scmUrl = 'SCM_URL'
-    private def scmConnection = 'SCM_CONNECTION'
-    private def scmDeveloperConnection = 'SCM_DEVELOPER_CONNECTION'
-    private def artifactPath = 'ARTIFACT_PATH'
-    private def repoUrl = 'REPOSITORY_URL'
-    private def repoSnapshotUrl = 'REPOSITORY_SNAPSHOT_URL'
-    private def skipSignature = 'SKIP_SIGNATURE'
-    private def skipCredential = 'SKIP_CREDENTIAL'
+    private def publishGroupId = 'publish.groupId'
+    private def publishArtifactId = 'publish.artifactId'
+    private def publishVersion = 'publish.version'
+    private def publishDescription = 'publish.description'
+    private def publishUrl = 'publish.url'
+    private def publishRepoReleaseUrl = 'publish.repoReleaseUrl'
+    private def publishRepoSnapshotUrl = 'publish.repoSnapshotUrl'
+    private def publishArtifactPath = 'publish.artifactPath'
+    private def publishIsAppendFavorName = 'publish.isAppendFavorName'
+    private def publishIsSkipSignature = 'publish.isSkipSignature'
+    private def publishIsSkipCredential = 'publish.isSkipCredential'
+    private def publishDeveloperName = 'publish.developerName'
+    private def publishDeveloperEmail = 'publish.developerEmail'
+    private def publishLicenseName = 'publish.licenseName'
+    private def publishLicenseUrl = 'publish.licenseUrl'
+    private def publishScmUrl = 'publish.scmUrl'
+    private def publishScmConnection = 'publish.scmConnection'
+    private def publishScmDeveloperConnection = 'publish.scmDeveloperConnection'
 
     private Project project
 
@@ -143,19 +144,19 @@ class Helper{
     }
 
     def isSkipSignature(){
-        return readBoolean(skipSignature)
+        return readBoolean(publishIsSkipSignature)
     }
 
     def isSkipCredential(url){
-        return readBoolean(skipCredential) || project.uri(url).scheme.toLowerCase() == 'file'
+        return readBoolean(publishIsSkipCredential) || project.uri(url).scheme.toLowerCase() == 'file'
     }
 
     def getMavenUrl(){
-        String tempReleaseUrl = readProperty(repoUrl)
-        String tempSnapshotsUrl = readProperty(repoSnapshotUrl)
+        String tempReleaseUrl = readProperty(publishRepoReleaseUrl)
+        String tempSnapshotsUrl = readProperty(publishRepoSnapshotUrl)
         def releasesRepoUrl = !tempReleaseUrl.isEmpty() ? tempReleaseUrl : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
         def snapshotsRepoUrl = !tempSnapshotsUrl.isEmpty() ? tempSnapshotsUrl : "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-        return readProperty(version).endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        return readProperty(publishVersion).endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
     }
 
     def getCredentials(){
@@ -167,20 +168,20 @@ class Helper{
 
     def getGAV(variant){
         def gav = new String[3]
-        gav[0] = readProperty(groupId)
-        gav[2] = readProperty(version)
+        gav[0] = readProperty(publishGroupId)
+        gav[2] = readProperty(publishVersion)
         if(variant == null){
-            gav[1] = readProperty(artifactId)
+            gav[1] = readProperty(publishArtifactId)
         }else{
-            gav[1] = readBoolean(appendFlavorName)
-                    ? (readProperty(artifactId) + "-${variant.flavorName}")
-                    : readProperty(artifactId)
+            gav[1] = readBoolean(publishIsAppendFavorName)
+                    ? (readProperty(publishArtifactId) + "-${variant.flavorName}")
+                    : readProperty(publishArtifactId)
         }
         return gav
     }
 
     def getArtifactPath(){
-        String path = readProperty(artifactPath)
+        String path = readProperty(publishArtifactPath)
         return path.split(';')
     }
 
@@ -231,28 +232,28 @@ class Helper{
         def closure = {
             pom {
                 //组件的基本信息
-                name = readProperty(artifactId)
-                description = readProperty(des)
-                url = readProperty(webSite)
+                name = readProperty(publishArtifactId)
+                description = readProperty(publishDescription)
+                url = readProperty(publishUrl)
                 //licenses文件
                 licenses {
                     license {
-                        name = readProperty(licenseName)
-                        url = readProperty(licenseUrl)
+                        name = readProperty(publishLicenseName)
+                        url = readProperty(publishLicenseUrl)
                     }
                 }
                 //开发者信息
                 developers {
                     developer {
-                        name = readProperty(developerName)
-                        email = readProperty(developerEmail)
+                        name = readProperty(publishDeveloperName)
+                        email = readProperty(publishDeveloperEmail)
                     }
                 }
                 //版本控制仓库地址
                 scm {
-                    url = readProperty(scmUrl)
-                    connection = readProperty(scmConnection)
-                    developerConnection = readProperty(scmDeveloperConnection)
+                    url = readProperty(publishScmUrl)
+                    connection = readProperty(publishScmConnection)
+                    developerConnection = readProperty(publishScmDeveloperConnection)
                 }
             }
         }
@@ -351,7 +352,7 @@ class Helper{
     }
 
     def isPackLibrary(){
-        return !readProperty(artifactPath).isEmpty()
+        return !readProperty(publishArtifactPath).isEmpty()
     }
 
     def log(String msg){
@@ -508,7 +509,7 @@ class Helper{
             log '项目根目录下local.properties文件不存在'
         }
 
-        if(readBoolean(skipSignature)){
+        if(readBoolean(publishIsSkipSignature)){
             log '跳过签名校验'
         }else{
             if(!containProperty(signingKeyId)
@@ -524,7 +525,7 @@ class Helper{
             }
         }
 
-        if(readBoolean(skipCredential)){
+        if(readBoolean(publishIsSkipCredential)){
            log '跳过账号校验'
         }else{
             if(!containProperty(ossrhUsername)
