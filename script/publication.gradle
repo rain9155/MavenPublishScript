@@ -21,10 +21,12 @@ if(helper.isCheckPass){
     publishing.repositories{
         maven {
             url = helper.getMavenUrl()
-            credentials {
-                def credentials = helper.getCredentials()
-                username credentials[0]
-                password credentials[1]
+            if(!helper.isSkipCredential(url)){
+                credentials {
+                    def credentials = helper.getCredentials()
+                    username credentials[0]
+                    password credentials[1]
+                }
             }
         }
     }
@@ -55,84 +57,47 @@ if(helper.isCheckPass){
                         artifact helper.getReleaseOutput(variant)
                     }
                     //要生成的pom文件
-                    pom {
-                        packaging = 'aar'
-                        //组件的基本信息
-                        def baseInfo = helper.getBaseInfo()
-                        name = baseInfo[0]
-                        description = baseInfo[1]
-                        url = baseInfo[2]
-                        //licenses文件
-                        licenses {
-                            license {
-                                def license = helper.getLicense()
-                                name = license[0]
-                                url = license[1]
-                            }
-                        }
-                        //开发者信息
-                        developers {
-                            developer {
-                                def developer = helper.getDeveloper()
-                                name = developer[0]
-                                email = developer[1]
-                            }
-                        }
-                        //版本控制仓库地址
-                        scm {
-                            def scm = helper.getScm()
-                            url = scm[0]
-                            connection = scm[1]
-                            developerConnection = scm[2]
-                        }
-                        if(!isAGPGreaterEqual360){
-                            //生成组件的依赖关系
-                            helper.appendDependenciesToPom(variant, it)
-                        }
+                    helper.appendCommonInfoToPom(it)
+                    if(!isAGPGreaterEqual360){
+                        //生成组件的依赖关系
+                        helper.appendDependenciesToPom(variant, it)
                     }
                 }
             }
-        }else if(helper.isJavaLibrary()){
+        }
+
+        if(helper.isJavaLibrary()){
             "Javalib"(MavenPublication) {
                 def gav = helper.getGAV()
                 groupId gav[0]
                 artifactId gav[1]
                 version gav[2]
                 from components.java
-                pom {
-                    packaging = 'jar'
-                    def baseInfo = helper.getBaseInfo()
-                    name = baseInfo[0]
-                    description = baseInfo[1]
-                    url = baseInfo[2]
-                    licenses {
-                        license {
-                            def license = helper.getLicense()
-                            name = license[0]
-                            url = license[1]
-                        }
-                    }
-                    developers {
-                        developer {
-                            def developer = helper.getDeveloper()
-                            name = developer[0]
-                            email = developer[1]
-                        }
-                    }
-                    scm {
-                        def scm = helper.getScm()
-                        url = scm[0]
-                        connection = scm[1]
-                        developerConnection = scm[2]
-                    }
+                helper.appendCommonInfoToPom(it)
+            }
+        }
+
+        if(helper.isPackLibrary()){
+            'Packlib'(MavenPublication) {
+                def gav = helper.getGAV()
+                groupId gav[0]
+                artifactId gav[1]
+                version gav[2]
+                String[] paths = helper.getArtifactPath()
+                helper.log "artifactPath = $paths"
+                paths.each {path ->
+                    artifact path
                 }
+                helper.appendCommonInfoToPom(it)
             }
         }
     }
 
     //对每个输出进行签名
-    signing {
-        sign publishing.publications
+    if(!helper.isSkipSignature()){
+        signing {
+            sign publishing.publications
+        }
     }
 }
 
@@ -145,6 +110,25 @@ class Helper{
     private def signingSecretKeyRingFile = 'signing.secretKeyRingFile'
     private def ossrhUsername = 'ossrh.username'
     private def ossrhPassword = 'ossrh.password'
+    private def groupId = 'GROUPID'
+    private def artifactId = 'ARTIFACTID'
+    private def version = 'VERSION'
+    private def des = 'DESCRIPTION'
+    private def webSite = 'URL'
+    private def appendFlavorName = 'APPEND_FLAVORNAME'
+    private def developerName = 'DEVELOPER_NAME'
+    private def developerEmail = 'DEVELOPER_EMAIL'
+    private def licenseName = 'LICENSE_NAME'
+    private def licenseUrl = 'LICENSE_URL'
+    private def scmUrl = 'SCM_URL'
+    private def scmConnection = 'SCM_CONNECTION'
+    private def scmDeveloperConnection = 'SCM_DEVELOPER_CONNECTION'
+    private def artifactPath = 'ARTIFACT_PATH'
+    private def repoUrl = 'REPOSITORY_URL'
+    private def repoSnapshotUrl = 'REPOSITORY_SNAPSHOT_URL'
+    private def skipSignature = 'SKIP_SIGNATURE'
+    private def skipCredential = 'SKIP_CREDENTIAL'
+
     private Project project
 
     def isCheckPass = false
@@ -158,10 +142,20 @@ class Helper{
         return string == null || string.isEmpty()
     }
 
+    def isSkipSignature(){
+        return readBoolean(skipSignature)
+    }
+
+    def isSkipCredential(url){
+        return readBoolean(skipCredential) || project.uri(url).scheme.toLowerCase() == 'file'
+    }
+
     def getMavenUrl(){
-        def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-        def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-        return readProperty('VERSION').endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        String tempReleaseUrl = readProperty(repoUrl)
+        String tempSnapshotsUrl = readProperty(repoSnapshotUrl)
+        def releasesRepoUrl = !tempReleaseUrl.isEmpty() ? tempReleaseUrl : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+        def snapshotsRepoUrl = !tempSnapshotsUrl.isEmpty() ? tempSnapshotsUrl : "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+        return readProperty(version).endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
     }
 
     def getCredentials(){
@@ -173,46 +167,21 @@ class Helper{
 
     def getGAV(variant){
         def gav = new String[3]
-        gav[0] = readProperty('GROUPID')
-        gav[2] = readProperty('VERSION')
+        gav[0] = readProperty(groupId)
+        gav[2] = readProperty(version)
         if(variant == null){
-            gav[1] = readProperty('ARTIFACTID')
+            gav[1] = readProperty(artifactId)
         }else{
-            gav[1] = readBoolean('APPENDFLAVORNAME')
-                    ? (readProperty('ARTIFACTID') + "-${variant.flavorName}")
-                    : readProperty('ARTIFACTID')
+            gav[1] = readBoolean(appendFlavorName)
+                    ? (readProperty(artifactId) + "-${variant.flavorName}")
+                    : readProperty(artifactId)
         }
         return gav
     }
 
-    def getScm(){
-        def scm = new String[3]
-        scm[0] = readProperty('SCMURL')
-        scm[1] = readProperty('SCMCONNECTION')
-        scm[2] = readProperty('SCMDEVELOPERCONNECTION')
-        return scm
-    }
-
-    def getDeveloper(){
-        def developer = new String[2]
-        developer[0] = readProperty('DEVELOPERNAME')
-        developer[1] = readProperty('DEVELOPEREMAIL')
-        return developer
-    }
-
-    def getLicense(){
-        def license = new String[2]
-        license[0] = readProperty('LICENSENAME')
-        license[1] = readProperty('LICENSEURL')
-        return license
-    }
-
-    def getBaseInfo(){
-        def baseInfo = new String[3]
-        baseInfo[0] = readProperty('ARTIFACTID')
-        baseInfo[1] = readProperty('DESCRIPTION')
-        baseInfo[2] = readProperty('URL')
-        return baseInfo
+    def getArtifactPath(){
+        String path = readProperty(artifactPath)
+        return path.split(';')
     }
 
     def createSourcesJar(variant){
@@ -258,9 +227,42 @@ class Helper{
         return result
     }
 
-    def appendDependenciesToPom(variant, mavenPom){
+    def appendCommonInfoToPom(publication){
         def closure = {
-            withXml{
+            pom {
+                //组件的基本信息
+                name = readProperty(artifactId)
+                description = readProperty(des)
+                url = readProperty(webSite)
+                //licenses文件
+                licenses {
+                    license {
+                        name = readProperty(licenseName)
+                        url = readProperty(licenseUrl)
+                    }
+                }
+                //开发者信息
+                developers {
+                    developer {
+                        name = readProperty(developerName)
+                        email = readProperty(developerEmail)
+                    }
+                }
+                //版本控制仓库地址
+                scm {
+                    url = readProperty(scmUrl)
+                    connection = readProperty(scmConnection)
+                    developerConnection = readProperty(scmDeveloperConnection)
+                }
+            }
+        }
+        closure.delegate = publication
+        closure.call()
+    }
+
+    def appendDependenciesToPom(variant, publication){
+        def closure = {
+            pom.withXml{
                 log 'appendDependenciesToPom...'
                 def dependenciesNode = asNode().appendNode('dependencies')
                 def runtimeClasspath = getRuntimeClasspath(variant)
@@ -322,7 +324,7 @@ class Helper{
                 }
             }
         }
-        closure.delegate = mavenPom
+        closure.delegate = publication
         closure.call()
     }
 
@@ -348,6 +350,10 @@ class Helper{
         return project.plugins.hasPlugin('java-library') || project.plugins.hasPlugin('java')
     }
 
+    def isPackLibrary(){
+        return !readProperty(artifactPath).isEmpty()
+    }
+
     def log(String msg){
         project.logger.log(LogLevel.LIFECYCLE, "${TAG}: ${msg}")
     }
@@ -369,7 +375,7 @@ class Helper{
     }
 
     private def isSupportPublish(){
-        return isAndroidLibrary() || isJavaLibrary()
+        return isAndroidLibrary() || isJavaLibrary() || isPackLibrary()
     }
 
     private def getRuntimeClasspath(variant){
@@ -480,7 +486,7 @@ class Helper{
 
     private def check(){
         if(!isSupportPublish()){
-            logError '目前只支持android工程和java工程的组件发布，暂不支持其他平台的组件发布'
+            logError '目前只支持android工程、java工程和pack打包的组件发布，暂不支持其他平台的组件发布'
             return false
         }else if(isAndroidLibrary()){
             log "项目是一个android工程"
@@ -494,10 +500,16 @@ class Helper{
         }else if(isJavaLibrary()){
             log '项目是一个java工程'
         }
+        if(isPackLibrary()){
+            log '项目是一个pack工程'
+        }
 
         if(!loadLocalProperties()){
-            logError '项目根目录下local.properties文件不存在'
-            return false
+            log '项目根目录下local.properties文件不存在'
+        }
+
+        if(readBoolean(skipSignature)){
+            log '跳过签名校验'
         }else{
             if(!containProperty(signingKeyId)
                     || !containProperty(signingPassword)
@@ -510,6 +522,11 @@ class Helper{
                 log "signingPassword = ${readProperty(signingPassword)}"
                 log "signingSecretKeyRingFile = ${readProperty(signingSecretKeyRingFile)}"
             }
+        }
+
+        if(readBoolean(skipCredential)){
+           log '跳过账号校验'
+        }else{
             if(!containProperty(ossrhUsername)
                     || !containProperty(ossrhPassword)
             ){

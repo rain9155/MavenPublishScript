@@ -2,4 +2,5 @@ rootProject.name = 'MavenPublishScript'
 
 include ':demo:androidlib'
 include ':demo:javalib'
+include ':demo:packlib'
 
