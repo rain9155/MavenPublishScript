@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0'
+        classpath 'com.android.tools.build:gradle:3.6.0'
     }
 }
 
@@ -14,6 +14,12 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
+        maven{
+            url './repo/release'
+        }
+        maven{
+            url './repo/snapshot'
+        }
         mavenLocal()
     }
 }

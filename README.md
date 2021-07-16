@@ -10,30 +10,31 @@ apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/
 ```
 ### GAV坐标
 publish.groupId=io.github.rain9155
+# 如果是android组件并且有flavor，最终生成的artifactId会带有flavorName信息，规则为artifactId-{flavorName}，可以设置isAppendFavorName为false取消
 publish.artifactId=mavenpublishscript
 # 版本加SNAPSHOT后缀可发布到maven远程snapshot地址，如1.0.0-SNAPSHOT
 publish.version=1.0.0
 
 ### 下面都是可选信息
-# 组件的基本描述
-publish.description=发布组件到Maven仓库的gradle脚本，支持aar和jar发布
-publish.url=https://github.com/rain9155/MavenPublishScript
-
 # 支持更换发布的仓库地址(release或snapshot)，如果你想发布到私有仓库、本地目录等，可以在这里设置，默认发布到Sonatype OSSRH
 publish.repoReleaseUrl=./repo/release
-publish.repoSnapshotUrl=./repo/shapshot
+publish.repoSnapshotUrl=./repo/snapshot
 
-# 支持二次打包本地aar或jar组件发布到仓库，只要在这里填写组件的本地地址就行，多个组件地址用英文分号;隔开
-publish.artifactPath=./libs/javalib.jar;./libs/androidlib,aar
+# 支持二次打包本地aar或jar组件发布到仓库，只要在这里填写组件的本地地址就行，多个组件地址用英文分号;隔开，发布时使用对应的任务
+publish.artifactPath=./libs/lib1.aar;./libs/lib2.aar;./libs/lib3.jar
 
-# 如果发布的是android组件，为true时，支持根据flavor动态生成组件名称，规则为artifactId-{flavorName}，默认为false
-publish.isAppendFavorName=true
+# 如果发布的是android组件，为true时支持根据flavor动态生成组件名称，规则为artifactId-{flavorName}，默认为true
+publish.artifactId.isAppendFavorName=false
 
 # 支持跳过签名校验，为true时不进行签名，如果你发布的组件不想进行gpg签名，可以设置为true，默认为false
 publish.isSkipSignature=true
 
 # 支持跳过账号校验，为true时不进行账号信息校验，如果你的仓库地址不需要账号就能访问，可以设置为true，默认为false
 publish.isSkipCredential=true
+
+# 基本描述
+publish.description=发布组件到Maven仓库的gradle脚本，支持aar和jar发布
+publish.url=https://github.com/rain9155/MavenPublishScript
 
 # 开发者信息
 publish.developerName=rain9155
