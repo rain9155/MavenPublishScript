@@ -7,7 +7,7 @@
 apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/script/publication.gradle'
 ```
 然后在组件的gradle.properties(没有则创建)中添加组件信息，其中GAV坐标是必填信息，其他是可选信息：
-```
+```groovy
 ### GAV坐标
 publish.groupId=io.github.rain9155
 # 如果是android组件并且有flavor，最终生成的artifactId会拼接flavorName信息，拼接规则为artifactId-{flavorName}，可以设置isAppendFavorName为false取消拼接
@@ -21,6 +21,7 @@ publish.repoReleaseUrl=./repo/release
 publish.repoSnapshotUrl=./repo/snapshot
 
 # 支持二次打包本地aar或jar组件发布到仓库，只要在这里填写组件的本地地址就行，多个组件地址用英文分号;隔开，发布时使用对应的任务
+# 二次打包生成的artifactId不使用publish.artifactId指定的，而是使用artifactPath传入的文件名，如这里为lib1、lib2、lib3
 publish.artifactPath=./libs/lib1.aar;./libs/lib2.aar;./libs/lib3.jar
 
 # 如果发布的是android组件，为false时不根据flavor动态生成组件的artifactId，默认为true，生成的规则为artifactId-{flavorName}
@@ -60,7 +61,7 @@ signing.secretKeyRingFile=你的私钥文件路径
 ossrh.username=你账号的用户名
 ossrh.password=你账号的密码
 ```
-最后在命令行执行gradle任务发布组件，如果你发布的是android组件(aar)，执行的任务的名称格式为`publish{flavorName}LibraryPublicationToMavenRepository`或`publish{flavorName}LibraryPublicationToMavenLocal`，其中flavorName为android组件的flavor的名称，首字母大写，没有则不填flavorName，如果你发布的是java组件(jar)，执行的任务名称为`publishJarPublicationToMavenRepository`或`publishJarPublicationToMavenLocal`，如果你想二次打包ARTIFACT_PATH指定的aar或jar组件发布，执行的任务名称为`publishPacklibPublicationToMavenRepository`或`publishPacklibPublicationToMavenLocal`：
+最后在命令行执行gradle任务发布组件，如果你发布的是android组件(aar)，执行的任务的名称格式为`publish{flavorName}LibraryPublicationToMavenRepository`或`publish{flavorName}LibraryPublicationToMavenLocal`，其中flavorName为android组件的flavor的名称，首字母大写，没有则不填flavorName，如果你发布的是java组件(jar)，执行的任务名称为`publishJarPublicationToMavenRepository`或`publishJarPublicationToMavenLocal`，如果你想二次打包artifactPath指定的aar或jar组件发布，执行的任务名称为`publishPack{fileName}libPublicationToMavenRepository`或`publishPack{fileName}libPublicationToMavenLocal`，其中fileName为artifactPath传入的组件路径中的文件名，首字母大写，下面为gradle发布任务执行示例：
 ```bash
 //发布aar到maven本地仓库
 gradle publishLibraryPublicationToMavenLocal
@@ -80,11 +81,13 @@ gradle publishJarPublicationToMavenLocal
 //发布jar到maven远程release或snapshot仓库
 gradle publishJarPublicationToMavenRepository
 
-//发布ARTIFACT_PATH指定的aar或jar到maven本地仓库
-gradle publishPacklibPublicationToMavenLocal
+//假设artifactPath指定了lib1.aar、lib2.aar路径，发布artifactPath指定的aar到maven本地仓库
+gradle publishPackLib1libPublicationToMavenLocal
 
-//发布ARTIFACT_PATH指定的aar或jar到maven远程release或snapshot仓库
-gradle publishPacklibPublicationToMavenRepository
+gradle publishPackLib2libPublicationToMavenLocal
+
+//假设artifactPath指定了lib3.jar路径，发布artifactPath指定的jar到maven远程release或snapshot仓库
+gradle publishPackLib3libPublicationToMavenRepository
 
 //发布所有aar和jar到maven本地仓库
 gradle publishToMavenLocal
