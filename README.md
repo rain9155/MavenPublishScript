@@ -10,9 +10,9 @@ apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/
 ```
 ### GAV坐标
 publish.groupId=io.github.rain9155
-# 如果是android组件并且有flavor，最终生成的artifactId会带有flavorName信息，规则为artifactId-{flavorName}，可以设置isAppendFavorName为false取消
+# 如果是android组件并且有flavor，最终生成的artifactId会拼接flavorName信息，拼接规则为artifactId-{flavorName}，可以设置isAppendFavorName为false取消拼接
 publish.artifactId=mavenpublishscript
-# 版本加SNAPSHOT后缀可发布到maven远程snapshot地址，如1.0.0-SNAPSHOT
+# 版本加SNAPSHOT后缀可发布到maven远程snapshot地址，如1.0.0-SNAPSHOT，如果没有SNAPSHOT后缀则默认发布到maven远程release地址
 publish.version=1.0.0
 
 ### 下面都是可选信息
@@ -23,7 +23,7 @@ publish.repoSnapshotUrl=./repo/snapshot
 # 支持二次打包本地aar或jar组件发布到仓库，只要在这里填写组件的本地地址就行，多个组件地址用英文分号;隔开，发布时使用对应的任务
 publish.artifactPath=./libs/lib1.aar;./libs/lib2.aar;./libs/lib3.jar
 
-# 如果发布的是android组件，为true时支持根据flavor动态生成组件名称，规则为artifactId-{flavorName}，默认为true
+# 如果发布的是android组件，为false时不根据flavor动态生成组件的artifactId，默认为true，生成的规则为artifactId-{flavorName}
 publish.artifactId.isAppendFavorName=false
 
 # 支持跳过签名校验，为true时不进行签名，如果你发布的组件不想进行gpg签名，可以设置为true，默认为false
@@ -51,12 +51,12 @@ publish.scmDeveloperConnection=scm:git:ssh://github.com:rain9155/MavenPublishScr
 ```
 然后在项目根目录的local.properties(没有则创建)中添加gpg签名信息和ossrh账号信息，记得要把local.properties从你的版本控制中移除，避免泄漏你的签名信息和账号信息：
 ```
-# gpg签名信息，如果设置了SKIP_SIGNATURE跳过签名，则可以不填
+# gpg签名信息，如果设置了isSkipSignature=true跳过签名，则可以不填
 signing.keyId=你的密钥id
 signing.password=你的私钥密码
 signing.secretKeyRingFile=你的私钥文件路径
 
-# ossrh账号信息，如果设置了SKIP_CREDENTIAL跳过账号校验，则可以不填
+# ossrh账号信息，如果设置了isSkipCredential=true跳过账号校验，则可以不填
 ossrh.username=你账号的用户名
 ossrh.password=你账号的密码
 ```

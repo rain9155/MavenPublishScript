@@ -7,8 +7,8 @@
   <version>1.0.0</version>
   <packaging>aar</packaging>
   <name></name>
-  <description></description>
-  <url></url>
+  <description>二次打包示例</description>
+  <url>https://github.com/rain9155/MavenPublishScript</url>
   <licenses>
     <license>
       <name></name>

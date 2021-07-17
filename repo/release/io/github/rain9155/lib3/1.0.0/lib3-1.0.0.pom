@@ -6,8 +6,8 @@
   <artifactId>lib3</artifactId>
   <version>1.0.0</version>
   <name></name>
-  <description></description>
-  <url></url>
+  <description>二次打包示例</description>
+  <url>https://github.com/rain9155/MavenPublishScript</url>
   <licenses>
     <license>
       <name></name>
