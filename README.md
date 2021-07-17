@@ -9,8 +9,10 @@ apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/
 ```groovy
 ### GAV坐标
 publish.groupId=io.github.rain9155
+
 # 如果是android组件并且有flavor，最终生成的artifactId会拼接flavorName信息，拼接规则为artifactId-{flavorName}，可以设置isAppendFavorName为false取消拼接
 publish.artifactId=mavenpublishscript
+
 # 版本加SNAPSHOT后缀可发布到maven远程snapshot地址，如1.0.0-SNAPSHOT，如果没有SNAPSHOT后缀则默认发布到maven远程release地址
 publish.version=1.0.0
 
