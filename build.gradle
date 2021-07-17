@@ -14,12 +14,12 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
-        maven{
-            url './repo/release'
-        }
-        maven{
-            url './repo/snapshot'
-        }
         mavenLocal()
+        maven{
+            url uri("${rootDir.path}/repo/release")
+        }
+        maven{
+            url uri("${rootDir.path}/repo/snapshot")
+        }
     }
 }

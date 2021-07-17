@@ -4,10 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-
 /**
  * 主活动
- * @author chenjianyu
  */
 public class MainActivity extends AppCompatActivity {
 
