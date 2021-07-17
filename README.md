@@ -24,13 +24,13 @@ publish.repoSnapshotUrl=./repo/snapshot
 # 二次打包生成的artifactId不使用publish.artifactId指定的，而是使用artifactPath传入的文件名，如这里为lib1、lib2、lib3
 publish.artifactPath=./libs/lib1.aar;./libs/lib2.aar;./libs/lib3.jar
 
-# 如果发布的是android组件，为false时不根据flavor动态生成组件的artifactId，默认为true，生成的规则为artifactId-{flavorName}
+# 如果发布的是android组件，当为false时不根据flavor动态生成组件的artifactId，如果你不想组件的artifactId拼接flavorName，可以设置为false，默认为true
 publish.artifactId.isAppendFavorName=false
 
-# 支持跳过签名校验，为true时不进行签名，如果你发布的组件不想进行gpg签名，可以设置为true，默认为false
+# 支持跳过签名校验，当为true时不进行签名，如果你发布的组件不想进行gpg签名，可以设置为true，默认为false
 publish.isSkipSignature=true
 
-# 支持跳过账号校验，为true时不进行账号信息校验，如果你的仓库地址不需要账号就能访问，可以设置为true，默认为false
+# 支持跳过账号校验，当为true时不进行账号信息校验，如果你的仓库地址不需要账号就能访问，可以设置为true，默认为false
 publish.isSkipCredential=true
 
 # 基本描述
