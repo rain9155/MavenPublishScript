@@ -15,5 +15,11 @@ allprojects {
         jcenter()
         mavenCentral()
         mavenLocal()
+        maven{
+            url uri("${rootDir.path}/repo/release")
+        }
+        maven{
+            url uri("${rootDir.path}/repo/snapshot")
+        }
     }
 }

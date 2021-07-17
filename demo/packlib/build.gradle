@@ -1,0 +1,2 @@
+apply from: "${rootProject.rootDir.path}/script/publication.gradle"
+
