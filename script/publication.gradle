@@ -43,7 +43,7 @@ if(helper.isCheckPass){
                     return
                 }
                 def flavorName = variant.flavorName
-                def variantName = "${flavorName}Release"
+                def variantName = "${flavorName}${helper.isEmpty(flavorName) ? 'r' : 'R'}elease"
                 helper.log "variant = ${variantName}"
                 "${flavorName}Androidlib"(MavenPublication) {
                     //组件GVA坐标
