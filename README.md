@@ -5,6 +5,10 @@
 ```groovy
 apply from: 'https://raw.githubusercontent.com/rain9155/MavenPublishScript/main/script/publication.gradle'
 ```
+有时候github地址在国内会访问失败，可以apply码云地址的脚本：
+```groovy
+apply from: 'https://gitee.com/rain_9155/hosting/raw/master/MavenPublishScript/publication.gradle'
+```
 然后在组件的gradle.properties(没有则创建)中添加组件信息，其中GAV坐标是必填信息，其他是可选信息：
 ```groovy
 ### GAV坐标
