@@ -1,5 +1,3 @@
-import com.sun.deploy.util.StringUtils
-
 def helper = new Helper(project)
 
 if(helper.isCheckPass){
