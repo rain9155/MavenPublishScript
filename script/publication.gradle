@@ -1,5 +1,3 @@
-import com.sun.deploy.util.StringUtils
-
 def helper = new Helper(project)
 
 if(helper.isCheckPass){
@@ -76,6 +74,17 @@ if(helper.isCheckPass){
                 artifactId gav[1]
                 version gav[2]
                 from components.java
+                helper.appendCommonInfoToPom(it, 'jar')
+            }
+        }
+
+        if(helper.isJavaPlatform()){
+            "platformlib"(MavenPublication){
+                def gav = helper.getGAV()
+                groupId gav[0]
+                artifactId gav[1]
+                version gav[2]
+                from components.javaPlatform
                 helper.appendCommonInfoToPom(it, 'jar')
             }
         }
@@ -241,7 +250,7 @@ class Helper{
     def appendCommonInfoToPom(publication, String ext){
         def closure = {
             pom {
-                if(ext != null && ext.isEmpty()){
+                if(ext != null && !ext.isEmpty()){
                     packaging = ext
                 }
                 //组件的基本信息
@@ -364,6 +373,10 @@ class Helper{
         return project.plugins.hasPlugin('java-library') || project.plugins.hasPlugin('java')
     }
 
+    def isJavaPlatform(){
+        return project.plugins.hasPlugin('java-platform')
+    }
+
     def isPackLibrary(){
         return !readProperty(publishArtifactPath).isEmpty()
     }
@@ -389,7 +402,7 @@ class Helper{
     }
 
     private def isSupportPublish(){
-        return isAndroidLibrary() || isJavaLibrary() || isPackLibrary()
+        return isAndroidLibrary() || isJavaLibrary() || isPackLibrary() || isJavaPlatform()
     }
 
     private def getRuntimeClasspath(variant){
@@ -500,7 +513,7 @@ class Helper{
 
     private def check(){
         if(!isSupportPublish()){
-            logError '目前只支持android工程、java工程和pack打包的组件发布，暂不支持其他平台的组件发布'
+            logError '目前只支持android工程、java工程、java-platform工程和pack打包的组件发布，暂不支持其他平台的组件发布'
             return false
         }
 
@@ -513,6 +526,11 @@ class Helper{
 
         if(isJavaLibrary()){
             log '项目是一个java工程'
+            isOnlyPackLib = false
+        }
+
+        if(isJavaPlatform()){
+            log "项目是一个java-platform工程"
             isOnlyPackLib = false
         }
 
