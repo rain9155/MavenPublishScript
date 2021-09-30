@@ -189,7 +189,7 @@ class Helper{
         def gav = new String[3]
         gav[0] = readProperty(publishGroupId)
         gav[2] = readProperty(publishVersion)
-        if(variant == null){
+        if(variant == null || isEmpty(variant.flavorName)){
             gav[1] = readProperty(publishArtifactId)
         }else{
             gav[1] = (readProperty(publishIsAppendFavorName).isEmpty() || readBoolean(publishIsAppendFavorName))
